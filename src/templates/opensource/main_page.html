@@ -1,0 +1,96 @@
+{% load filters %}
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/post.css">
+<script type="text/javascript">
+</script>
+
+</head>
+<body>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        <div class="topbar-title"><span class="title-name"><a href="/">OpenSource</a></span></div>
+        <div class="topbar-links">
+            <div class="links-container">
+                {% if usr %}
+                <span id="usr">{{ usr }}</span>
+                {% endif %}
+                <a class="login_out" href="{{ url }}">{{ url_linktext }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    {% if admin %}
+    <p>Welcome, {{ usr_name }}! You can go to <a style="text-decoration: underline;" href="/admin">admin</a> page to remove question/answers</p>
+        {% endif %}
+    <div class="search">
+        <form class="form" method="get" action="/search">
+            {% csrf_token %}
+            <input type="text" name="q" value="{{ search }}">
+            <button type="submit">search tag</button>
+        </form>
+        <a href="/ask">Ask Question</a>
+    </div>
+    <div class="header">
+        <h1>All Questions</h1>
+        <div class="tabs">
+            <a class="{{ newest }}" href="?sort=newest&q={{ search }}">newest</a>
+            <a class="{{ votes }}" href="?sort=votes&q={{ search }}">votes</a>
+            <a class="{{ answers }}" href="?sort=answers&q={{ search }}">answers</a>
+            <a class="{{ views }}" href="?sort=views&q={{ search }}">views</a>
+        </div>
+    </div>
+    {% for question in questions %}
+    <div class="questions">
+        <div class="question-list">
+            <div class="stats">
+                <span class="vote-count">
+                    <span class="data">{{ question.votes }}</span>
+                    <span class="pad">votes</span>
+                </span>
+                <span class="answer-count">
+                    <span class="data">{{ question.answers }}</span>
+                    <span class="pad">answers</span>
+                </span>
+                <span class="view-count">{{ question.views }} views</span>
+            </div>
+            <div class="summary">
+                <div class="summary-title">
+                    <a href="/question/{{ question.key.id }}">{{ question.title }}</a>
+                </div>
+                <div class="summary-content">
+                    {{ question.content|urlize|filter|slice:":500" }}
+                </div>
+                <div class="summary-info">
+                    <div class="date">
+                        <span class="date"><i>{{ question.date_create }}</i></span>
+                        <span>by</span>
+                        <span class="usr">{{ question.author }}</span>
+                    </div>
+                    <div class="tags">
+                        <ul>
+                            {% for tag in question.tags %}
+                                <li><a href="/tagged/{{ tag }}">{{ tag }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="next">
+            {{ page }}/{{ pages }}
+            {% if next %}
+                <a href="?page={{ next }}&sort={{ order }}&q={{ search }}&cursor={{ cursor }}">next</a>
+            {% endif %}
+        </div>
+    </div>
+    
+</div>
+
+</body>
+</html>
+

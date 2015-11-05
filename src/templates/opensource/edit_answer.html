@@ -1,0 +1,134 @@
+{% load filters %}
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/post.css">
+<script type="text/javascript">
+function $(str){
+    return (document.getElementById(str));
+}
+
+function check_submit(form){
+    with (form) {
+        if(text.value==null||text.value=="") {
+            alert("content can't be empty!");
+            return false;
+        }
+    }
+}
+
+function mover(){
+    event.srcElement.focus();
+    event.srcElement.select();
+}
+
+function mclick(){
+    if(event.srcElement.value=="What's your question?")
+    event.srcElement.value="";
+}
+
+function mblur(){
+    if(event.srcElement.value=="")
+    event.srcElement.value="What's your question?";
+}
+
+function fileupload(form){
+    with (form) {
+        if(file.value==null||file.value=="") {
+            alert("Choose a file!");
+            return false;
+        }
+    }
+}
+</script>
+
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-wrapper">
+            <div class="topbar-title"><span class="title-name"><a href="/">OpenSource</a></span></div>
+            <div class="topbar-links">
+                <div class="links-container">
+                    {% if usr %}
+                    <span id="usr">{{ usr }}</span>
+                    {% endif %}
+                    <a class="login_out" href="{{ url }}">{{ url_linktext }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<div class="main">
+    <div class="header">
+        <h1>{{ question.title }}</h1>
+    </div>
+    
+    <div class="question">
+        <div class="votecell">
+            <form method="post" action="/vote/">
+                {% csrf_token %}
+                <input type="hidden" name="qid" value="{{ question.key.id }}" />
+                <input type="hidden" name="key" value="{{ question.key.urlsafe }}">
+                <input class="vote-up" type="submit" name="vote" value="+">
+                    <div class="vote-value">{{ question.votes }}</div>
+                <input class="vote-down" type="submit" name="vote" value="-">
+            </form>
+        </div>
+        <div class="postcell">
+            <div class="post-content">{{ question.content|urlize|filter|linebreaks }}
+            </div>
+            <div class="post-info">
+                <div class="tags">
+                    <ul>
+                        {% for tag in question.tags %}
+                            <li><a href="/tagged/{{ tag }}">{{ tag }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="date">
+                    <div class="date-wrapper">
+                        <div class="left"><a href="/edit?qkey={{ question.key.urlsafe }}">Edit</a></div>
+                        <div class="right">
+                            <div class="post-time"><span>First Posted at <i>{{ question.date_create }}</i></span></div>
+                            <div class="post-time"><span>Last modified at <i>{{ question.date_modify }}</i></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="usr">
+                    <span>{{ question.author }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <h2> Your Answer </h2>
+    <form action="/edit/submit/" onsubmit="return check_submit(this);" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="qid" value="{{ question.key.id }}" />
+        <input type="hidden" name="key" value="{{ answer.key.urlsafe }}" />
+        <div class="content">
+            <textarea class="content-input" name="text" cols="92" rows="15" tabindex="2" onmouseover="mover();">{{ answer.content }}</textarea>
+        </div>
+        <div class="submit">
+            <button type="submit" value="Edit Answer" tabindex="4">Edit Answer</button>
+        </div>
+    </form>
+    
+    <form action="{{ upload_url }}" onsubmit="return fileupload(this);" method="POST" enctype="multipart/form-data" target="_blank">
+        {% csrf_token %}
+        Upload File:
+        <input type="file" name="file"> <input type="submit" name="submit" value="Submit">
+            <br>
+            {% if your_upload %}
+            Your Upload: <label>http://chenji-opensource.appspot.com/serve/{{ your_upload }}.OPS</label>
+            {% endif %}
+            <br>
+            <a href="/upload/imgs">Link to All Images</a>
+            </form>
+
+</div>
+
+</body>
+</html>
+

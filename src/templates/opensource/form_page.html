@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/post.css">
+<script type="text/javascript">
+function $(str){
+    return (document.getElementById(str));
+}
+function check_submit(form){
+    with (form) {
+        if(title.value==null||title.value==""||title.value=="What's your question?") {
+            alert("Question title can't be empty!");
+            return false;
+        }
+        if(text.value==null||text.value=="") {
+            alert("Question content can't be empty!");
+            return false;
+        }
+    }
+}
+
+function mover(){
+    event.srcElement.focus();
+    event.srcElement.select();
+}
+
+function mclick(){
+    if(event.srcElement.value=="What's your question?")
+    event.srcElement.value="";
+}
+
+function fileupload(form){
+    with (form) {
+        if(file.value==null||file.value=="") {
+            alert("Choose a file!");
+            return false;
+        }
+    }
+}
+
+function mblur(){
+    if(event.srcElement.value=="")
+    event.srcElement.value="What's your question?";
+}
+</script>
+
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-wrapper">
+            <div class="topbar-title"><span class="title-name"><a href="/">OpenSource</a></span></div>
+            <div class="topbar-links">
+                <div class="links-container">
+                    {% if usr %}
+                    <span id="usr">{{ usr }}</span>
+                    {% endif %}
+                    <a class="login_out" href="{{ url }}">{{ url_linktext }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        {% if question %}
+        <form action="/edit/submit/" onsubmit="return check_submit(this);" method="post">
+        <input type="hidden" name="id" value="{{ question.key.id }}" />
+        {% else %}
+        <form action="/ask/submit/" onsubmit="return check_submit(this);" method="post">
+        {% endif %}
+            {% csrf_token %}
+            <div class="title form-item">
+                <table class="title-table">
+                    <tr>
+                        <td class="title-key">
+                            <label><pre>Title</pre></label>
+                        </td>
+                        <td class="title-value">
+                            {% if question %}
+                            <input class="title-field" name="title" type="text" maxlength="300" tabindex="1" value="{{ question.title }}" onclick="mclick();" onmouseover="mover();">
+                                {% else %}
+                                <input class="title-field" name="title" type="text" maxlength="300" tabindex="1" value="What's your question?" onclick="mclick();" onmouseover="mover();">
+                                    {% endif %}
+                                </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="content">
+                <textarea class="content-input" name="text" cols="92" rows="15" tabindex="2" onmouseover="mover();">{{ question.content }}</textarea>
+            </div>
+            <div class="tags form-item">
+                <label>Tags</label>
+                <input type="text" name="tags" tabindex="3" value="{{ question.tags_to_string }}" style="width: 658px;" onmouseover="mover();">
+                    <div class="tags errorMsg">Tags seperated by ; or space</div>
+                    </div>
+            <div class="submit">
+                {% if question %}
+                <button type="submit" value="Post Question" tabindex="4">Post Edit</button>
+                {% else %}
+                <button type="submit" value="Post Question" tabindex="4">Post Question</button>
+                {% endif %}
+            </div>
+        </form>
+        <br>
+        <form action="{{ upload_url }}" onsubmit="return fileupload(this);" method="POST" enctype="multipart/form-data" target="_blank">
+            {% csrf_token %}
+            Upload File:
+            <input type="file" name="file"> <input type="submit" name="submit" value="Submit">
+            <br>
+            {% if your_upload %}
+                Your Upload: <label>http://chenji-opensource.appspot.com/serve/{{ your_upload }}.OPS</label>
+            {% endif %}
+            <br>
+            <a href="/upload/imgs">Link to All Images</a>
+        </form>
+    </div>
+</body>
+</html>
+

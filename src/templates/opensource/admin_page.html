@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/css/post.css">
+</head>
+<body>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        <div class="topbar-title"><span class="title-name"><a href="/">OpenSource</a></span></div>
+        <div class="topbar-links">
+            <div class="links-container">
+                <span id="usr">{{ usr }}</span>
+                <a class="login_out" href="">logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<p>Admin</p>
+<form action="/admin/delete/" method="POST">
+    {% csrf_token %}
+    {% for question in questions %}
+    <input type="checkbox" name="key" value="{{ question.key.urlsafe }}"><a href="/question/{{ question.key.id }}">{{ question.title }}</a></input><br/>
+        {% endfor %}
+        <input type="submit" value="delete">
+    </form>
+
+</body>
+</html>
+
